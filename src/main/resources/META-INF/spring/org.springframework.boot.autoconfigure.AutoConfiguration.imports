@@ -1,1 +1,1 @@
-com.ems.faultmns.config.FaultMnsAutoConfiguration
+com.ems.nbi.autoconfigure.NbiMnsApiAutoConfiguration

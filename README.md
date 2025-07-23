@@ -57,7 +57,7 @@ After building, the following interfaces will be available:
 - `com.ems.faultmns.api.FaultApi` - Fault Management Service operations
 - Model classes in respective `model` packages
 
-## Usage
+## Usage in Your Project
 
 Add this library as a dependency to your Spring Boot project:
 
@@ -70,9 +70,62 @@ dependencies {
 }
 ```
 
-## How It Works
+### Auto-Configuration
 
-1. **Repository Setup**: The build automatically clones the official 3GPP MnS repository from <https://forge.3gpp.org/rep/sa5/MnS.git>
-2. **Branch Checkout**: Switches to the Rel-17 branch for stable specifications  
-3. **API Generation**: Uses OpenAPI Generator to create Spring Boot interfaces from the YAML specifications
-4. **Compilation**: Compiles the generated code into a distributable JAR
+The library provides Spring Boot auto-configuration that automatically:
+
+- Scans and registers the generated API interfaces
+- Configures component scanning for FaultMnS and PerfMnS packages
+- Enables API interfaces when the required classes are present on the classpath
+
+### Configuration Properties
+
+You can customize the library behavior using application properties:
+
+```yaml
+# application.yml
+nbi:
+  mns:
+    fault-mns-enabled: true          # Enable/disable Fault Management Service API
+    perf-mns-enabled: true           # Enable/disable Performance Management Service API
+    base-path: "/api/v1"             # Custom base path for endpoints
+    api-documentation-enabled: true  # Enable API documentation
+```
+
+Or using properties file:
+
+```properties
+# application.properties
+nbi.mns.fault-mns-enabled=true
+nbi.mns.perf-mns-enabled=true
+nbi.mns.base-path=/api/v1
+nbi.mns.api-documentation-enabled=true
+```
+
+### Implementation
+
+To implement the API endpoints, create @RestController classes that implement the generated interfaces:
+
+```java
+@RestController
+public class FaultManagementController implements FaultApi {
+    
+    @Override
+    public ResponseEntity<List<AlarmRecord>> alarmsGet(/* parameters */) {
+        // Your implementation here
+        return ResponseEntity.ok(/* your alarm records */);
+    }
+    
+    // Implement other methods...
+}
+
+@RestController 
+public class PerformanceManagementController implements PerfApi {
+    
+    @Override
+    public ResponseEntity<Void> notificationSinkPost(NotifyThresholdCrossing notification) {
+        // Your implementation here
+        return ResponseEntity.noContent().build();
+    }
+}
+```

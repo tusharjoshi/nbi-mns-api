@@ -19,6 +19,15 @@ java {
     withSourcesJar()
 }
 
+// Configure source sets to include generated sources
+sourceSets {
+    main {
+        java {
+            srcDirs += "${buildDir}/generated-sources/src/main/java"
+        }
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -142,7 +151,7 @@ tasks.register('generateFaultMnSApi', GenerateTask) {
 
     generatorName = 'spring'
     inputSpec = "${rootDir}/api-specs/OpenAPI/TS28532_FaultMnS.yaml"
-    outputDir = "${rootDir}"
+    outputDir = "${buildDir}/generated-sources"
     apiPackage = "com.ems.faultmns.api"
     modelPackage = "com.ems.faultmns.model"
     invokerPackage = "com.ems.faultmns.invoker"
@@ -187,7 +196,7 @@ tasks.register('generatePerfMnSApi', GenerateTask) {
 
     generatorName = 'spring'
     inputSpec = "${rootDir}/api-specs/OpenAPI/TS28532_PerfMnS.yaml"
-    outputDir = "${rootDir}"
+    outputDir = "${buildDir}/generated-sources"
     apiPackage = "com.ems.perfmns.api"
     modelPackage = "com.ems.perfmns.model"
     invokerPackage = "com.ems.perfmns.invoker"
@@ -235,10 +244,9 @@ test {
     useJUnitPlatform()
 }
 
-// Clean generated sources
+// Clean generated sources (they will be in build directory)
 clean {
-    delete fileTree(dir: "${rootDir}/src/main/java", include: '**/com/ems/faultmns/**')
-    delete fileTree(dir: "${rootDir}/src/main/java", include: '**/com/ems/perfmns/**')
+    delete "${buildDir}/generated-sources"
 }
 
 // Task to clean the cloned repository (useful for forcing a fresh clone)
