@@ -29,6 +29,77 @@ configurations {
     }
 }
 
+// Task to clone the 3GPP MnS repository
+tasks.register('cloneMnSRepository') {
+    group = 'repository-setup'
+    description = 'Clone the 3GPP MnS repository and checkout Rel-17 branch'
+    
+    def apiSpecsDir = file("${rootDir}/api-specs")
+    def repoUrl = 'https://forge.3gpp.org/rep/sa5/MnS.git'
+    def branch = 'Rel-17'
+    
+    // Only run if api-specs directory doesn't exist or is empty
+    onlyIf {
+        !apiSpecsDir.exists() || apiSpecsDir.listFiles().length == 0
+    }
+    
+    doLast {
+        // Create api-specs directory if it doesn't exist
+        if (!apiSpecsDir.exists()) {
+            apiSpecsDir.mkdirs()
+            println "Created directory: ${apiSpecsDir.absolutePath}"
+        }
+        
+        // Clone the repository
+        println "Cloning 3GPP MnS repository from ${repoUrl}..."
+        exec {
+            workingDir rootDir
+            commandLine 'git', 'clone', '--branch', branch, '--single-branch', repoUrl, 'api-specs'
+        }
+        
+        println "Successfully cloned 3GPP MnS repository (${branch} branch) to ${apiSpecsDir.absolutePath}"
+    }
+}
+
+// Task to update the 3GPP MnS repository
+tasks.register('updateMnSRepository') {
+    group = 'repository-setup'
+    description = 'Update the 3GPP MnS repository to latest Rel-17 branch'
+    
+    def apiSpecsDir = file("${rootDir}/api-specs")
+    def branch = 'Rel-17'
+    
+    // Only run if api-specs directory exists and contains a git repository
+    onlyIf {
+        apiSpecsDir.exists() && file("${apiSpecsDir}/.git").exists()
+    }
+    
+    doLast {
+        println "Updating 3GPP MnS repository to latest ${branch}..."
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'fetch', 'origin'
+        }
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'checkout', branch
+        }
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'pull', 'origin', branch
+        }
+        
+        println "Successfully updated 3GPP MnS repository to latest ${branch}"
+    }
+}
+
+// Combined task to ensure repository is available and up-to-date
+tasks.register('setupMnSRepository') {
+    group = 'repository-setup'
+    description = 'Ensure 3GPP MnS repository is cloned and up-to-date'
+    dependsOn cloneMnSRepository, updateMnSRepository
+}
+
 dependencies {
     // Spring Boot dependencies - using compileOnly to avoid forcing versions
     compileOnly 'org.springframework.boot:spring-boot-starter'
@@ -69,9 +140,8 @@ tasks.register('generateFaultMnSApi', GenerateTask) {
     description = "Generate API artifacts for Fault Management Service (TS28532_FaultMnS)"
     dependsOn generatePerfMnSApi
 
-
     generatorName = 'spring'
-    inputSpec = "${rootDir}/api-specs/TS28532_FaultMnS.yaml"
+    inputSpec = "${rootDir}/api-specs/OpenAPI/TS28532_FaultMnS.yaml"
     outputDir = "${rootDir}"
     apiPackage = "com.ems.faultmns.api"
     modelPackage = "com.ems.faultmns.model"
@@ -113,10 +183,10 @@ tasks.register('generateFaultMnSApi', GenerateTask) {
 tasks.register('generatePerfMnSApi', GenerateTask) {
     group = 'api-generation'
     description = "Generate API artifacts for Performance Management Service (TS28532_PerfMnS)"
-
+    dependsOn setupMnSRepository
 
     generatorName = 'spring'
-    inputSpec = "${rootDir}/api-specs/TS28532_PerfMnS.yaml"
+    inputSpec = "${rootDir}/api-specs/OpenAPI/TS28532_PerfMnS.yaml"
     outputDir = "${rootDir}"
     apiPackage = "com.ems.perfmns.api"
     modelPackage = "com.ems.perfmns.model"
@@ -163,6 +233,28 @@ javadocJar.dependsOn generateFaultMnSApi
 
 test {
     useJUnitPlatform()
+}
+
+// Clean generated sources
+clean {
+    delete fileTree(dir: "${rootDir}/src/main/java", include: '**/com/ems/faultmns/**')
+    delete fileTree(dir: "${rootDir}/src/main/java", include: '**/com/ems/perfmns/**')
+}
+
+// Task to clean the cloned repository (useful for forcing a fresh clone)
+tasks.register('cleanMnSRepository') {
+    group = 'repository-setup'
+    description = 'Remove the cloned 3GPP MnS repository (will be re-cloned on next build)'
+    
+    doLast {
+        def apiSpecsDir = file("${rootDir}/api-specs")
+        if (apiSpecsDir.exists()) {
+            delete apiSpecsDir
+            println "Removed api-specs directory: ${apiSpecsDir.absolutePath}"
+        } else {
+            println "api-specs directory does not exist"
+        }
+    }
 }
 
 // Configure the jar task for library distribution
