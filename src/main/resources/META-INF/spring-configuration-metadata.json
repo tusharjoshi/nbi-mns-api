@@ -1,35 +1,35 @@
 {
   "groups": [
     {
-      "name": "fault-mns",
-      "type": "com.ems.faultmns.config.FaultMnsProperties",
-      "description": "Configuration properties for 3GPP Fault Management Service API."
+      "name": "nbi.mns",
+      "type": "com.ems.nbi.autoconfigure.NbiMnsApiProperties",
+      "description": "Configuration properties for 3GPP NBI MnS API."
     }
   ],
   "properties": [
     {
-      "name": "fault-mns.base-path",
+      "name": "nbi.mns.fault-mns-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable Fault Management Service API.",
+      "defaultValue": true
+    },
+    {
+      "name": "nbi.mns.perf-mns-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable Performance Management Service API.",
+      "defaultValue": true
+    },
+    {
+      "name": "nbi.mns.base-path",
       "type": "java.lang.String",
-      "description": "Base path for the Fault Management Service API endpoints.",
-      "defaultValue": "/fault-mns"
+      "description": "Base path for API endpoints (if using a custom context path).",
+      "defaultValue": ""
     },
     {
-      "name": "fault-mns.enable-docs",
+      "name": "nbi.mns.api-documentation-enabled",
       "type": "java.lang.Boolean",
-      "description": "Whether to enable OpenAPI documentation endpoints.",
+      "description": "Enable API documentation generation.",
       "defaultValue": true
-    },
-    {
-      "name": "fault-mns.enable-validation",
-      "type": "java.lang.Boolean",
-      "description": "Whether to enable validation of request/response bodies.",
-      "defaultValue": true
-    },
-    {
-      "name": "fault-mns.max-alarms-per-response",
-      "type": "java.lang.Integer",
-      "description": "Maximum number of alarms to return in a single response.",
-      "defaultValue": 1000
     }
   ]
 }
