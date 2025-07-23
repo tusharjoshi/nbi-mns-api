@@ -307,12 +307,14 @@ def createApiGenerationTask(apiConfig) {
         description = "Generate API artifacts for ${apiConfig.description} (${apiConfig.spec})"
         dependsOn setupMnSRepository
 
+        def isApi = apiConfig.packageName.contains('MnS')
+
         generatorName = 'spring'
         inputSpec = "${rootDir}/api-specs/OpenAPI/${apiConfig.spec}"
         outputDir = "${buildDir}/generated-sources"
-        apiPackage = "com.ems.${apiConfig.packageName}.api"
-        modelPackage = "com.ems.${apiConfig.packageName}.model"
-        invokerPackage = "com.ems.${apiConfig.packageName}.invoker"
+        apiPackage = "com.ems.api"
+        modelPackage = "com.ems.model"
+        invokerPackage = "com.ems.invoker"
 
         configOptions = [
                 library                   : 'spring-boot',
@@ -342,7 +344,7 @@ def createApiGenerationTask(apiConfig) {
         ]
 
         globalProperties = [
-                models         : '',
+                models         : isApi ? 'false' : '',
                 apis           : '',
                 supportingFiles: 'ApiUtil'
         ]
