@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "name": "fault-mns",
+      "type": "com.ems.faultmns.config.FaultMnsProperties",
+      "description": "Configuration properties for 3GPP Fault Management Service API."
+    }
+  ],
+  "properties": [
+    {
+      "name": "fault-mns.base-path",
+      "type": "java.lang.String",
+      "description": "Base path for the Fault Management Service API endpoints.",
+      "defaultValue": "/fault-mns"
+    },
+    {
+      "name": "fault-mns.enable-docs",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable OpenAPI documentation endpoints.",
+      "defaultValue": true
+    },
+    {
+      "name": "fault-mns.enable-validation",
+      "type": "java.lang.Boolean",
+      "description": "Whether to enable validation of request/response bodies.",
+      "defaultValue": true
+    },
+    {
+      "name": "fault-mns.max-alarms-per-response",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of alarms to return in a single response.",
+      "defaultValue": 1000
+    }
+  ]
+}

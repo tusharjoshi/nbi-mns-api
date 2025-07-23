@@ -1,0 +1,178 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.openapi.generator' version '7.2.0'
+}
+
+group = 'com.ems'
+version = '1.0.0'
+description = '3GPP NBI API Library'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+    withSourcesJar()
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    // Spring Boot dependencies - using compileOnly to avoid forcing versions
+    compileOnly 'org.springframework.boot:spring-boot-starter'
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+    
+    // Core API dependencies - these will be provided to consumers
+    api 'org.springframework:spring-web'
+    api 'org.springframework:spring-context'
+    api 'jakarta.validation:jakarta.validation-api'
+    api 'io.swagger.core.v3:swagger-annotations:2.2.20'
+    
+    // Jackson for JSON processing
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    
+    // OpenAPI and Swagger - optional for consumers
+    compileOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    
+    // Bean validation implementation - optional for consumers
+    compileOnly 'org.hibernate.validator:hibernate-validator'
+    
+    // Spring Boot auto-configuration
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.register('generateFaultMnSApi', GenerateTask) {
+    group = 'api-generation'
+    description = "Generate API artifacts for Fault Management Service (TS28532_FaultMnS)"
+    dependsOn generatePerfMnSApi
+
+
+    generatorName = 'spring'
+    inputSpec = "${rootDir}/api-specs/TS28532_FaultMnS.yaml"
+    outputDir = "${rootDir}"
+    apiPackage = "com.ems.faultmns.api"
+    modelPackage = "com.ems.faultmns.model"
+    invokerPackage = "com.ems.faultmns.invoker"
+
+    configOptions = [
+            library                   : 'spring-boot',
+            dateLibrary               : 'java8',
+            java8                     : 'true',
+            interfaceOnly             : 'true',
+            skipDefaultInterface      : 'true',
+            useTags                   : 'true',
+            generateApiTests          : 'false',
+            generateModelTests        : 'false',
+            generateApiDocumentation  : 'true',
+            generateModelDocumentation: 'true',
+            hideGenerationTimestamp   : 'true',
+            useSpringBoot3            : 'true',
+            documentationProvider     : 'springdoc',
+            openApiNullable           : 'false',
+            useBeanValidation         : 'true',
+            performBeanValidation     : 'true',
+            serializationLibrary      : 'jackson',
+            apiNameSuffix             : 'FaultApi'
+    ]
+
+    globalProperties = [
+            models         : '',
+            apis           : '',
+            supportingFiles: 'ApiUtil'
+    ]
+    
+    // Use OpenAPI normalizer to add tags and rename the API
+    openapiNormalizer = [
+            'SET_TAGS_FOR_ALL_OPERATIONS': 'Fault'
+    ]
+}
+
+tasks.register('generatePerfMnSApi', GenerateTask) {
+    group = 'api-generation'
+    description = "Generate API artifacts for Performance Management Service (TS28532_PerfMnS)"
+
+
+    generatorName = 'spring'
+    inputSpec = "${rootDir}/api-specs/TS28532_PerfMnS.yaml"
+    outputDir = "${rootDir}"
+    apiPackage = "com.ems.perfmns.api"
+    modelPackage = "com.ems.perfmns.model"
+    invokerPackage = "com.ems.perfmns.invoker"
+
+    configOptions = [
+            library                   : 'spring-boot',
+            dateLibrary               : 'java8',
+            java8                     : 'true',
+            interfaceOnly             : 'true',
+            skipDefaultInterface      : 'true',
+            useTags                   : 'true',
+            generateApiTests          : 'false',
+            generateModelTests        : 'false',
+            generateApiDocumentation  : 'true',
+            generateModelDocumentation: 'true',
+            hideGenerationTimestamp   : 'true',
+            useSpringBoot3            : 'true',
+            documentationProvider     : 'springdoc',
+            openApiNullable           : 'false',
+            useBeanValidation         : 'true',
+            performBeanValidation     : 'true',
+            serializationLibrary      : 'jackson',
+            apiNameSuffix             : 'PerfApi'
+    ]
+
+    globalProperties = [
+            models         : '',
+            apis           : '',
+            supportingFiles: 'ApiUtil'
+    ]
+    
+    // Use OpenAPI normalizer to add tags and rename the API
+    openapiNormalizer = [
+            'SET_TAGS_FOR_ALL_OPERATIONS': 'Perf'
+    ]
+}
+
+// Ensure generated sources are available for compilation
+compileJava.dependsOn generateFaultMnSApi
+processResources.dependsOn generateFaultMnSApi
+sourcesJar.dependsOn generateFaultMnSApi
+javadocJar.dependsOn generateFaultMnSApi
+
+test {
+    useJUnitPlatform()
+}
+
+// Configure the jar task for library distribution
+jar {
+    enabled = true
+    archiveClassifier = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Disable the bootJar task since this is a library
+bootJar {
+    enabled = false
+}
