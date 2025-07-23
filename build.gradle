@@ -331,7 +331,6 @@ def createApiGenerationTask(apiConfig) {
                 useSpringBoot3            : 'true',
                 documentationProvider     : 'springdoc',
                 openApiNullable           : 'false',
-                useBeanValidation         : 'true',
                 performBeanValidation     : 'true',
                 serializationLibrary      : 'jackson',
                 apiNameSuffix             : "${apiConfig.name}Api",
@@ -340,7 +339,10 @@ def createApiGenerationTask(apiConfig) {
                 modelNamePrefix           : 'Model',
                 disallowAdditionalPropertiesIfNotPresent: 'false',
                 useBeanValidation         : 'false', // Disable bean validation to avoid @Max issues
-                performBeanValidation     : 'false'
+                performBeanValidation     : 'false',
+                generateAliasAsModel      : 'false',    // Prevents generic aliases
+                useOneOfInterfaces        : 'false',      // Forces concrete classes
+                legacyDiscriminatorBehavior: 'true'       // Proper oneOf handling
         ]
 
         globalProperties = [
