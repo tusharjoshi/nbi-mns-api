@@ -308,6 +308,7 @@ public class FaultMnsController implements FaultApi {
         callbackUrlExpression = "{$request.body#/consumerReference}",
         operation = @Operation(
             summary = "Alarm notification callback",
+            method = "POST",
             description = "Callback endpoint to receive alarm notifications",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                 description = "Alarm notification payload",
