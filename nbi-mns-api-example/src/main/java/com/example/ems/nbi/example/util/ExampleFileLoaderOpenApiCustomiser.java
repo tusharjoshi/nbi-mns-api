@@ -42,6 +42,14 @@ public class ExampleFileLoaderOpenApiCustomiser implements OpenApiCustomizer {
                 processApiResponse(apiResponse)
             );
         }
+        if (operation.getRequestBody() != null ) {
+            Content content = operation.getRequestBody().getContent();
+            if (content != null) {
+                content.values().forEach(mediaType ->
+                    processMediaType(mediaType)
+                );
+            }
+        }
     }
 
     private void processApiResponse(ApiResponse apiResponse) {

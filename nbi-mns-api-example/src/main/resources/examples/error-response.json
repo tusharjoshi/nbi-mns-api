@@ -1,0 +1,10 @@
+{
+    "error": {
+        "code": "INVALID_REQUEST",
+        "message": "The request is invalid.",
+        "details": [
+            "Missing required parameter: baseObjectInstance",
+            "Invalid value for parameter: alarmAckState"
+        ]
+    }
+}

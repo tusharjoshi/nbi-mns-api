@@ -223,8 +223,30 @@ public class FaultMnsController implements FaultMnSApi {
                 }
             )
         ),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
+        @ApiResponse(
+            responseCode = "500", 
+            description = "Internal server error",
+            content = @Content(
+                mediaType = "application/json",
+                examples = {
+                    @ExampleObject(
+                        name = "Error Response",
+                        summary = "Error response with details",
+                        value = "@examples/error-response.json"
+                    )
+                }
+            )
+        )
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+        required = true, 
+        content = @Content(
+            examples = {
+                @ExampleObject(value = "@examples/get-alarms-request.json", name = "invalidRequest", description = "Invalid Request"),
+                @ExampleObject(value = "", name = "validRequest", description = "Valid Request") 
+            }
+        )
+    )
     public ResponseEntity<Map<String, AlarmsGet200ResponseValue>> alarmsGet(
             @Parameter(description = "Filter by alarm acknowledgment state") AlarmAckState alarmAckState, 
             @Parameter(description = "Base object instance to filter alarms") String baseObjectInstance, 
@@ -345,26 +367,7 @@ public class FaultMnsController implements FaultMnSApi {
             }
         )
     )
-    public ResponseEntity<Subscription> subscriptionsPost(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Subscription request details",
-                content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = Subscription.class),
-                    examples = {
-                        @ExampleObject(
-                            name = "Critical Alarms Subscription",
-                            summary = "Subscribe to critical and major alarms",
-                            value = "@examples/critical-alarms-subscription.json"
-                        ),
-                        @ExampleObject(
-                            name = "All Alarms Subscription",
-                            summary = "Subscribe to all alarm types",
-                            value = "@examples/all-alarms-subscription.json"
-                        )
-                    }
-                )
-            ) Subscription subscription) {
+    public ResponseEntity<Subscription> subscriptionsPost(Subscription subscription) {
         try {
             String subscriptionId = String.valueOf(subscriptionIdCounter.getAndIncrement());
             

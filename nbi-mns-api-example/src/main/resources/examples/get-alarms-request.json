@@ -1,0 +1,8 @@
+{
+    "baseObjectInstance": "exampleBaseObjectInstance",
+    "alarmAckState": "ACKNOWLEDGED",
+    "filter": {
+        "severity": "CRITICAL",
+        "status": "ACTIVE"
+    }
+}
