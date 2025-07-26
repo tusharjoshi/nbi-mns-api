@@ -32,7 +32,7 @@ public class NbiMnsApiAutoConfiguration {
      * Configuration for Fault Management Service API components.
      */
     @Configuration
-    @ConditionalOnClass(name = "com.ems.faultmns.api.FaultApi")
+    @ConditionalOnClass(name = "com.ems.api.FaultMnSApi")
     @ConditionalOnProperty(prefix = "nbi.mns", name = "fault-mns-enabled", havingValue = "true", matchIfMissing = true)
     @ComponentScan(basePackages = "com.ems.faultmns")
     public static class FaultMnsConfiguration {
@@ -42,7 +42,7 @@ public class NbiMnsApiAutoConfiguration {
      * Configuration for Performance Management Service API components.
      */
     @Configuration
-    @ConditionalOnClass(name = "com.ems.perfmns.api.PerfApi")
+    @ConditionalOnClass(name = "com.ems.api.PerfMnsApi")
     @ConditionalOnProperty(prefix = "nbi.mns", name = "perf-mns-enabled", havingValue = "true", matchIfMissing = true)
     @ComponentScan(basePackages = "com.ems.perfmns")
     public static class PerfMnsConfiguration {

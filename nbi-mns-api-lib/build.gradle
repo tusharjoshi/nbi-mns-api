@@ -151,7 +151,7 @@ def mnsApiSpecs = [
         description: 'Fault Management Service',
         spec: 'TS28532_FaultMnS.yaml',
         packageName: 'faultmns',
-        tag: 'Fault',
+        tag: 'FaultMnS',
         skipValidation: false
     ],
     [
@@ -159,7 +159,7 @@ def mnsApiSpecs = [
         description: 'Performance Threshold Monitoring MnS',
         spec: 'TS28532_PerfMnS.yaml',
         packageName: 'perfmns',
-        tag: 'Perf',
+        tag: 'PerfMnS',
         skipValidation: false
     ],
     [
@@ -167,7 +167,7 @@ def mnsApiSpecs = [
         description: 'Provisioning MnS', 
         spec: 'TS28532_ProvMnS.yaml',
         packageName: 'provmns',
-        tag: 'Prov',
+        tag: 'ProvMnS',
         skipValidation: false
     ],
     [
@@ -175,7 +175,7 @@ def mnsApiSpecs = [
         description: 'Performance Measurement Job Control MnS',
         spec: 'TS28550_PerfMeasJobCtrlMnS.yaml',
         packageName: 'perfmeasjobctrl',
-        tag: 'PerfMeasJobCtrl',
+        tag: 'PerfMeasJobCtrlMnS',
         skipValidation: false
     ],
     [
@@ -183,7 +183,7 @@ def mnsApiSpecs = [
         description: 'File Data Reporting MnS',
         spec: 'TS28532_FileDataReportingMnS.yaml',
         packageName: 'filedatareporting',
-        tag: 'FileDataReporting',
+        tag: 'FileDataReportingMnS',
         skipValidation: false
     ],
     [

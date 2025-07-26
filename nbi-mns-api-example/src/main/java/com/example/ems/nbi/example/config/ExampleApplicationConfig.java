@@ -38,8 +38,9 @@ public class ExampleApplicationConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Example Implementation")
-                                .email("support@example.com")
-                                .url("https://example.com"))
+                                // .email("support@example.com")
+                                // .url("https://example.com")
+                                )
                         .license(new License()
                                 .name("Apache License 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0")));
