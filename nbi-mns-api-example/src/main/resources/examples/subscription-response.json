@@ -1,0 +1,11 @@
+{
+  "consumerReference": "http://notification-service.example.com/fault-notifications",
+  "filter": {
+    "objectClass": ["AlarmInformation"],
+    "objectInstance": ["/ManagedElement=RAN001", "/ManagedElement=CORE002"],
+    "notificationTypes": ["notifyNewAlarm", "notifyChangedAlarm", "notifyClearedAlarm"],
+    "perceivedSeverity": ["critical", "major"]
+  },
+  "timeTick": 60,
+  "subscriptionId": "sub-12345"
+}

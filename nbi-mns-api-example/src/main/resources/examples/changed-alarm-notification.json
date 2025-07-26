@@ -1,0 +1,19 @@
+{
+  "href": "https://producer.example.com/alarms/alarm-001",
+  "notificationId": 12346,
+  "notificationType": "notifyChangedAlarm",
+  "eventTime": "2024-01-15T10:35:00Z",
+  "systemDN": "ManagedElement=NodeB001",
+  "alarmId": "alarm-001",
+  "alarmType": "EQUIPMENT_ALARM",
+  "perceivedSeverity": "CRITICAL",
+  "probableCause": "POWER_SUPPLY_FAILURE",
+  "specificProblem": "Main power supply unit failure detected",
+  "alarmRaisedTime": "2024-01-15T10:30:00Z",
+  "alarmChangedTime": "2024-01-15T10:35:00Z",
+  "alarmText": "Power supply unit PSU-001 has failed. Backup power is running low.",
+  "changedAlarmAttribute": [
+    "perceivedSeverity",
+    "alarmText"
+  ]
+}

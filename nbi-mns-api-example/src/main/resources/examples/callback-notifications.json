@@ -1,0 +1,76 @@
+{
+  "newAlarmNotification": {
+    "notificationId": "notif-001",
+    "notificationType": "notifyNewAlarm",
+    "eventTime": "2024-01-15T10:30:00Z",
+    "systemDN": "/ManagedElement=RAN001",
+    "alarmId": "alarm-001",
+    "alarmRaisedTime": "2024-01-15T10:30:00Z",
+    "alarmType": "communicationsAlarm",
+    "probableCause": "equipmentMalfunction",
+    "specificProblem": "Network interface eth0 is down",
+    "perceivedSeverity": "critical",
+    "backedUpStatus": false,
+    "trendIndication": "moreServere",
+    "correlatedNotifications": [],
+    "additionalText": "Primary network interface has lost connectivity",
+    "additionalInformation": {
+      "interface": "eth0",
+      "lastPacketTime": "2024-01-15T10:29:45Z",
+      "affectedServices": ["Voice", "Data"]
+    },
+    "ackState": "unacknowledged",
+    "objectInstance": "/ManagedElement=RAN001/Equipment=1"
+  },
+  "changedAlarmNotification": {
+    "notificationId": "notif-003",
+    "notificationType": "notifyChangedAlarm",
+    "eventTime": "2024-01-15T14:45:00Z",
+    "systemDN": "/ManagedElement=RAN001",
+    "alarmId": "alarm-001",
+    "alarmRaisedTime": "2024-01-15T10:30:00Z",
+    "alarmChangedTime": "2024-01-15T14:45:00Z",
+    "alarmType": "communicationsAlarm",
+    "probableCause": "equipmentMalfunction",
+    "specificProblem": "Network interface eth0 is down",
+    "perceivedSeverity": "critical",
+    "ackState": "acknowledged",
+    "ackTime": "2024-01-15T14:45:00Z",
+    "ackUserId": "operator1",
+    "ackSystemId": "EMS-001",
+    "additionalText": "Issue acknowledged and assigned to maintenance team",
+    "objectInstance": "/ManagedElement=RAN001/Equipment=1",
+    "changedAlarmFields": ["ackState", "ackTime", "ackUserId", "additionalText"]
+  },
+  "clearedAlarmNotification": {
+    "notificationId": "notif-005",
+    "notificationType": "notifyClearedAlarm",
+    "eventTime": "2024-01-15T15:30:00Z",
+    "systemDN": "/ManagedElement=RAN001",
+    "alarmId": "alarm-001",
+    "alarmRaisedTime": "2024-01-15T10:30:00Z",
+    "alarmClearedTime": "2024-01-15T15:30:00Z",
+    "alarmType": "communicationsAlarm",
+    "probableCause": "equipmentMalfunction",
+    "specificProblem": "Network interface eth0 is down",
+    "perceivedSeverity": "cleared",
+    "clearUserId": "system",
+    "clearSystemId": "EMS-001",
+    "additionalText": "Network interface restored - connectivity recovered",
+    "additionalInformation": {
+      "interface": "eth0",
+      "restoredTime": "2024-01-15T15:30:00Z",
+      "resolutionMethod": "automatic",
+      "downtime": "5 hours"
+    },
+    "objectInstance": "/ManagedElement=RAN001/Equipment=1"
+  },
+  "heartbeatNotification": {
+    "notificationId": "heartbeat-001",
+    "notificationType": "notifyHeartbeat",
+    "eventTime": "2024-01-15T16:00:00Z",
+    "systemDN": "/ManagedElement=RAN001",
+    "subscriptionId": "sub-12345",
+    "additionalText": "Heartbeat notification - subscription is active"
+  }
+}

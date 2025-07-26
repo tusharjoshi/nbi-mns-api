@@ -1,1 +1,2 @@
-rootProject.name = 'nbi-mns-api'
+rootProject.name = 'nbi-api-mns'
+include 'nbi-mns-api-lib', 'nbi-mns-api-example'

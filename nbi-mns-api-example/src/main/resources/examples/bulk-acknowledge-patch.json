@@ -1,0 +1,7 @@
+{
+  "alarmAckState": "acknowledged",
+  "comment": {
+    "commentUserId": "supervisor",
+    "commentText": "All critical alarms reviewed and assigned"
+  }
+}

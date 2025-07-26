@@ -10,7 +10,7 @@ build/generated-sources/
 generated-sources/
 
 # API specifications (downloaded automatically)
-api-specs/
+**/api-specs/
 
 # IDE
 .idea/

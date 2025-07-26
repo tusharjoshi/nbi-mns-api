@@ -1,0 +1,20 @@
+{
+  "href": "https://producer.example.com/alarms/alarm-001",
+  "notificationId": 12345,
+  "notificationType": "notifyNewAlarm",
+  "eventTime": "2024-01-15T10:30:00Z",
+  "systemDN": "ManagedElement=NodeB001",
+  "alarmId": "alarm-001",
+  "alarmType": "EQUIPMENT_ALARM",
+  "perceivedSeverity": "MAJOR",
+  "probableCause": "POWER_SUPPLY_FAILURE",
+  "specificProblem": "Main power supply unit failure detected",
+  "alarmRaisedTime": "2024-01-15T10:30:00Z",
+  "alarmText": "Power supply unit PSU-001 has failed. Backup power is active.",
+  "proposedRepairActions": "Replace the faulty power supply unit",
+  "additionalInformation": {
+    "location": "Equipment Room A",
+    "vendor": "Vendor XYZ",
+    "model": "PSU-500W"
+  }
+}

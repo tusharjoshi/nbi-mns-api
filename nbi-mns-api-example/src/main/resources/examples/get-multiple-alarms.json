@@ -1,0 +1,39 @@
+{
+    "1": {
+      "objectInstance": "/ManagedElement=RAN001/Equipment=1",
+      "notificationId": "notif-001",
+      "alarmRaisedTime": "2024-01-15T10:30:00Z",
+      "alarmType": "communicationsAlarm",
+      "probableCause": "equipmentMalfunction",
+      "specificProblem": "Network interface eth0 is down",
+      "perceivedSeverity": "critical",
+      "backedUpStatus": false,
+      "trendIndication": "moreServere",
+      "additionalText": "Primary network interface has lost connectivity",
+      "additionalInformation": {
+        "interface": "eth0",
+        "lastPacketTime": "2024-01-15T10:29:45Z"
+      },
+      "ackState": "unacknowledged",
+      "comments": {}
+    },
+    "2": {
+      "objectInstance": "/ManagedElement=CORE002/ProcessingUnit=1",
+      "notificationId": "notif-002", 
+      "alarmRaisedTime": "2024-01-15T11:00:00Z",
+      "alarmType": "processingErrorAlarm",
+      "probableCause": "thresholdCrossed",
+      "specificProblem": "CPU usage exceeded 85% threshold",
+      "perceivedSeverity": "major",
+      "backedUpStatus": false,
+      "trendIndication": "moreServere",
+      "additionalText": "High CPU utilization detected on processing unit",
+      "additionalInformation": {
+        "currentUsage": "87%",
+        "threshold": "85%",
+        "duration": "5 minutes"
+      },
+      "ackState": "unacknowledged",
+      "comments": {}
+    }
+  }

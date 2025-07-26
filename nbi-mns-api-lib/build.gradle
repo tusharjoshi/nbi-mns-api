@@ -1,0 +1,540 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.openapi.generator' version '7.2.0'
+}
+
+group = 'com.example.ems'
+version = '1.0.0'
+description = '3GPP NBI API Library'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    withJavadocJar()
+    withSourcesJar()
+}
+
+// Configure source sets to include generated sources
+sourceSets {
+    main {
+        java {
+            srcDirs += "${buildDir}/generated-sources/src/main/java"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+// Task to clone the 3GPP MnS repository
+tasks.register('cloneMnSRepository') {
+    group = 'repository-setup'
+    description = 'Clone the 3GPP MnS repository and checkout Rel-17 branch'
+    
+    def apiSpecsDir = file("${projectDir}/api-specs")
+    def repoUrl = 'https://forge.3gpp.org/rep/sa5/MnS.git'
+    def branch = 'Rel-17'
+    
+    // Only run if api-specs directory doesn't exist or is empty
+    onlyIf {
+        !apiSpecsDir.exists() || apiSpecsDir.listFiles().length == 0
+    }
+    
+    doLast {
+        // Create api-specs directory if it doesn't exist
+        if (!apiSpecsDir.exists()) {
+            apiSpecsDir.mkdirs()
+            println "Created directory: ${apiSpecsDir.absolutePath}"
+        }
+        
+        // Clone the repository
+        println "Cloning 3GPP MnS repository from ${repoUrl}..."
+        exec {
+            workingDir projectDir
+            commandLine 'git', 'clone', '--branch', branch, '--single-branch', repoUrl, 'api-specs'
+        }
+        
+        println "Successfully cloned 3GPP MnS repository (${branch} branch) to ${apiSpecsDir.absolutePath}"
+    }
+}
+
+// Task to update the 3GPP MnS repository
+tasks.register('updateMnSRepository') {
+    group = 'repository-setup'
+    description = 'Update the 3GPP MnS repository to latest Rel-17 branch'
+    
+    def apiSpecsDir = file("${projectDir}/api-specs")
+    def branch = 'Rel-17'
+    
+    // Only run if api-specs directory exists and contains a git repository
+    onlyIf {
+        apiSpecsDir.exists() && file("${apiSpecsDir}/.git").exists()
+    }
+    
+    doLast {
+        println "Updating 3GPP MnS repository to latest ${branch}..."
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'fetch', 'origin'
+        }
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'checkout', branch
+        }
+        exec {
+            workingDir apiSpecsDir
+            commandLine 'git', 'pull', 'origin', branch
+        }
+        
+        println "Successfully updated 3GPP MnS repository to latest ${branch}"
+    }
+}
+
+// Combined task to ensure repository is available and up-to-date
+tasks.register('setupMnSRepository') {
+    group = 'repository-setup'
+    description = 'Ensure 3GPP MnS repository is cloned and up-to-date'
+    dependsOn cloneMnSRepository, updateMnSRepository
+}
+
+dependencies {
+    // Spring Boot dependencies - using compileOnly to avoid forcing versions
+    compileOnly 'org.springframework.boot:spring-boot-starter'
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework.boot:spring-boot-starter-validation'
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+    
+    // Core API dependencies - these will be provided to consumers
+    api 'org.springframework:spring-web'
+    api 'org.springframework:spring-context'
+    api 'jakarta.validation:jakarta.validation-api'
+    api 'io.swagger.core.v3:swagger-annotations:2.2.20'
+    
+    // Jackson for JSON processing
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'com.fasterxml.jackson.core:jackson-annotations'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8'
+    
+    // OpenAPI and Swagger - optional for consumers
+    compileOnly 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    
+    // Bean validation implementation - optional for consumers
+    compileOnly 'org.hibernate.validator:hibernate-validator'
+    
+    // Spring Boot auto-configuration
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+// Configuration for MnS API specifications
+def mnsApiSpecs = [
+    [
+        name: 'FaultMnS',
+        description: 'Fault Management Service',
+        spec: 'TS28532_FaultMnS.yaml',
+        packageName: 'faultmns',
+        tag: 'Fault',
+        skipValidation: false
+    ],
+    [
+        name: 'PerfMnS', 
+        description: 'Performance Threshold Monitoring MnS',
+        spec: 'TS28532_PerfMnS.yaml',
+        packageName: 'perfmns',
+        tag: 'Perf',
+        skipValidation: false
+    ],
+    [
+        name: 'ProvMnS',
+        description: 'Provisioning MnS', 
+        spec: 'TS28532_ProvMnS.yaml',
+        packageName: 'provmns',
+        tag: 'Prov',
+        skipValidation: false
+    ],
+    [
+        name: 'PerfMeasJobCtrlMnS',
+        description: 'Performance Measurement Job Control MnS',
+        spec: 'TS28550_PerfMeasJobCtrlMnS.yaml',
+        packageName: 'perfmeasjobctrl',
+        tag: 'PerfMeasJobCtrl',
+        skipValidation: false
+    ],
+    [
+        name: 'FileDataReportingMnS',
+        description: 'File Data Reporting MnS',
+        spec: 'TS28532_FileDataReportingMnS.yaml',
+        packageName: 'filedatareporting',
+        tag: 'FileDataReporting',
+        skipValidation: false
+    ],
+    [
+        name: 'HeartbeatNtf',
+        description: 'Heartbeat Notifications',
+        spec: 'TS28532_HeartbeatNtf.yaml',
+        packageName: 'heartbeatntf',
+        tag: 'Heartbeat',
+        skipValidation: false
+    ],
+    [
+        name: 'StreamingDataMnS',
+        description: 'Streaming Data Reporting MnS',
+        spec: 'TS28532_StreamingDataMnS.yaml',
+        packageName: 'streamingdata',
+        tag: 'StreamingData',
+        skipValidation: false
+    ],
+    [
+        name: 'MdaNrm',
+        description: 'Management Data Analytics Network Resource Model',
+        spec: 'TS28104_MdaNrm.yaml',
+        packageName: 'mdanrm',
+        tag: 'MdaNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'MdaReport',
+        description: 'Management Data Analytics Report',
+        spec: 'TS28104_MdaReport.yaml',
+        packageName: 'mdareport',
+        tag: 'MdaReport',
+        skipValidation: false
+    ],
+    [
+        name: 'AiMlNrm',
+        description: 'AI/ML Network Resource Model',
+        spec: 'TS28105_AiMlNrm.yaml',
+        packageName: 'aimlnrm',
+        tag: 'AiMlNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'IntentExpectations',
+        description: 'Intent Expectations',
+        spec: 'TS28312_IntentExpectations.yaml',
+        packageName: 'intentexpectations',
+        tag: 'IntentExpectations',
+        skipValidation: false
+    ],
+    [
+        name: 'IntentNrm',
+        description: 'Intent Network Resource Model',
+        spec: 'TS28312_IntentNrm.yaml',
+        packageName: 'intentnrm',
+        tag: 'IntentNrm',
+        skipValidation: false
+    ],
+    [
+        name: 'CoslaNrm',
+        description: 'Communication Service Lifecycle Assurance Network Resource Model',
+        spec: 'TS28536_CoslaNrm.yaml',
+        packageName: 'coslanrm',
+        tag: 'CoslaNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'EdgeNrm',
+        description: 'Edge Network Resource Model',
+        spec: 'TS28538_EdgeNrm.yaml',
+        packageName: 'edgenrm',
+        tag: 'EdgeNrm',
+        skipValidation: true
+    ],
+    [
+        name: '5GcNrm',
+        description: '5G Core Network Resource Model',
+        spec: 'TS28541_5GcNrm.yaml',
+        packageName: 'fivegcnrm',
+        tag: '5GcNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'NrNrm',
+        description: 'NR Network Resource Model',
+        spec: 'TS28541_NrNrm.yaml',
+        packageName: 'nrnrm',
+        tag: 'NrNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'SliceNrm',
+        description: 'Network Slice Network Resource Model',
+        spec: 'TS28541_SliceNrm.yaml',
+        packageName: 'slicenrm',
+        tag: 'SliceNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'GenericNrm',
+        description: 'Generic Network Resource Model',
+        spec: 'TS28623_GenericNrm.yaml',
+        packageName: 'genericnrm',
+        tag: 'GenericNrm',
+        skipValidation: true
+    ],
+    [
+        name: 'ComDefs',
+        description: 'Common Definitions',
+        spec: 'TS28623_ComDefs.yaml',
+        packageName: 'comdefs',
+        tag: 'ComDefs',
+        skipValidation: false
+    ]
+]
+
+// Helper method to create API generation tasks
+def createApiGenerationTask(apiConfig) {
+    return tasks.register("generate${apiConfig.name}Api", GenerateTask) {
+        group = 'api-generation'
+        description = "Generate API artifacts for ${apiConfig.description} (${apiConfig.spec})"
+        dependsOn setupMnSRepository
+
+        def isApi = apiConfig.packageName.contains('MnS')
+
+        generatorName = 'spring'
+        inputSpec = "${projectDir}/api-specs/OpenAPI/${apiConfig.spec}"
+        outputDir = "${buildDir}/generated-sources"
+        apiPackage = "com.example.ems.api"
+        modelPackage = "com.example.ems.model"
+        invokerPackage = "com.example.ems.invoker"
+
+        configOptions = [
+                library                   : 'spring-boot',
+                dateLibrary               : 'java8',
+                java8                     : 'true',
+                interfaceOnly             : 'true',
+                skipDefaultInterface      : 'true',
+                useTags                   : 'true',
+                generateApiTests          : 'false',
+                generateModelTests        : 'false',
+                generateApiDocumentation  : 'true',
+                generateModelDocumentation: 'true',
+                hideGenerationTimestamp   : 'true',
+                useSpringBoot3            : 'true',
+                documentationProvider     : 'springdoc',
+                openApiNullable           : 'false',
+                performBeanValidation     : 'true',
+                serializationLibrary      : 'jackson',
+                apiNameSuffix             : "${apiConfig.name}Api",
+                // Additional options to fix naming and validation issues
+                enumNameSuffix            : 'Enum',
+                modelNamePrefix           : 'Model',
+                disallowAdditionalPropertiesIfNotPresent: 'false',
+                useBeanValidation         : 'false', // Disable bean validation to avoid @Max issues
+                performBeanValidation     : 'false',
+                generateAliasAsModel      : 'false',    // Prevents generic aliases
+                useOneOfInterfaces        : 'false',      // Forces concrete classes
+                legacyDiscriminatorBehavior: 'true'       // Proper oneOf handling
+        ]
+
+        globalProperties = [
+                models         : isApi ? 'false' : '',
+                apis           : '',
+                supportingFiles: 'false'
+        ]
+        
+        // Type mappings to handle problematic types
+        typeMappings = [
+                'integer': 'Long',  // Use Long instead of Integer for large numbers
+                'int64': 'Long',
+                'int32': 'Integer'
+        ]
+        
+        // Import mappings for custom types
+        importMappings = [
+                'BigDecimal': 'java.math.BigDecimal',
+                'UUID': 'java.util.UUID',
+                'File': 'java.io.File',
+                'Date': 'java.time.LocalDate',
+                'DateTime': 'java.time.OffsetDateTime'
+        ]
+        
+        // Schema mappings for specific problematic schemas
+        schemaMappings = [
+                'EutraCellId': 'String',
+                'NrCellId': 'String',
+                'UtraCellId': 'String',
+                'ThresholdHysteresis': 'String',
+                'GeoAreaToCellMapping': 'String',
+                'GeoCoordinate': 'String',
+                'Tac': 'String',
+                'Tai': 'String'
+        ]
+        
+        // Use OpenAPI normalizer to add tags and rename the API
+        openapiNormalizer = [
+                'SET_TAGS_FOR_ALL_OPERATIONS': apiConfig.tag,
+                'REFACTOR_ALLOF_WITH_PROPERTIES_ONLY': 'true',
+                'RESOLVE_INLINE_ENUMS': 'true',
+                'SIMPLIFY_ONEOF_ANYOF': 'true',
+                'KEEP_ONLY_FIRST_TAG_IN_OPERATION': 'true'
+        ]
+        
+        // Skip validation for specs that have known issues
+        validateSpec = !apiConfig.skipValidation
+    }
+}
+
+// Create all API generation tasks
+def apiGenerationTasks = []
+mnsApiSpecs.each { apiConfig ->
+    def task = createApiGenerationTask(apiConfig)
+    apiGenerationTasks.add(task)
+}
+
+// Post-processing task to fix generated code issues
+tasks.register('fixGeneratedCode') {
+    group = 'api-generation'
+    description = 'Fix issues in generated code (invalid identifiers, large integers, etc.)'
+    dependsOn apiGenerationTasks
+    
+    doLast {
+        def generatedSourcesDir = file("${buildDir}/generated-sources/src/main/java")
+        
+        if (generatedSourcesDir.exists()) {
+            println "Fixing generated code issues..."
+            
+            // Find all Java files
+            fileTree(generatedSourcesDir) {
+                include '**/*.java'
+            }.each { javaFile ->
+                def content = javaFile.text
+                def originalContent = content
+                
+                // Fix 1: Replace invalid enum names starting with numbers
+                content = content.replaceAll(/public enum (\d+\w+Enum)/, 'public enum Model$1')
+                content = content.replaceAll(/(\d+\w+Enum)\./, 'Model$1.')
+                content = content.replaceAll(/(\d+\w+Enum)\s+/, 'Model$1 ')
+                content = content.replaceAll(/(\d+\w+Enum)\)/, 'Model$1)')
+                content = content.replaceAll(/(\d+\w+Enum),/, 'Model$1,')
+                
+                // Fix 2: Replace large integer values in @Max annotations with Long.MAX_VALUE
+                content = content.replaceAll(/@Max\((\d{10,})\)/) { match, value ->
+                    if (Long.parseLong(value) > Integer.MAX_VALUE) {
+                        return "@Max(Long.MAX_VALUE)"
+                    }
+                    return match
+                }
+                
+                // Fix 3: Remove triple Model prefix from enum declarations and all references (order matters!)
+                // First fix the enum class declaration
+                content = content.replaceAll(/public enum ModelModelModel([\w\d]+Enum)/, 'public enum ModelModel$1')
+                // Then fix constructor names to match
+                content = content.replaceAll(/ModelModelModel([\w\d]+Enum)\(/, 'ModelModel$1(')
+                // Finally fix any remaining references
+                content = content.replaceAll(/ModelModelModel([\w\d]+Enum)/, 'ModelModel$1')
+                
+                // Fix 4: Fix enum constructor names to match the enum class name
+                content = content.replaceAll(/(\d+\w+Enum)\(String value\)/, 'ModelModel$1(String value)')
+                
+                // Fix 5: Fix method references to use the correct enum class name
+                content = content.replaceAll(/public static Model5gCNFTypeEnum fromValue/, 'public static ModelModel5gCNFTypeEnum fromValue')
+                content = content.replaceAll(/for \(Model5gCNFTypeEnum b : Model5gCNFTypeEnum\.values\(\)\)/, 'for (ModelModel5gCNFTypeEnum b : ModelModel5gCNFTypeEnum.values())')
+                content = content.replaceAll(/private Model5gCNFTypeEnum/, 'private ModelModel5gCNFTypeEnum')
+                content = content.replaceAll(/public Model5gCNFTypeEnum get/, 'public ModelModel5gCNFTypeEnum get')
+                content = content.replaceAll(/public void set.*\(Model5gCNFTypeEnum/, { match ->
+                    return match.replace('Model5gCNFTypeEnum', 'ModelModel5gCNFTypeEnum')
+                })
+                content = content.replaceAll(/.*_5gCNFType\(Model5gCNFTypeEnum/, { match ->
+                    return match.replace('Model5gCNFTypeEnum', 'ModelModel5gCNFTypeEnum')
+                })
+                
+                // Fix 6: Replace invalid variable/method names starting with numbers
+                content = content.replaceAll(/private (\d+\w+Enum) _(\d+\w+)/) { match, enumType, varName ->
+                    return "private Model${enumType} model${varName.capitalize()}"
+                }
+                
+                // Fix 7: Fix method signatures with invalid names
+                content = content.replaceAll(/(\w+) (\d+\w+)\(/) { match, returnType, methodName ->
+                    return "${returnType} get${methodName.capitalize()}("
+                }
+                
+                // Fix 8: Fix Long assignment compatibility issues (int literals need L suffix)
+                content = content.replaceAll(/private Long (\w+) = (\d+);/) { match, varName, value ->
+                    return "private Long ${varName} = ${value}L;"
+                }
+                // Fix 9: Replace references to problematic identifiers
+                content = content.replaceAll(/\.(\d+\w+)\(/) { match, methodName ->
+                    return ".get${methodName.capitalize()}("
+                }
+                
+                // Only write if content changed
+                if (content != originalContent) {
+                    javaFile.text = content
+                    println "Fixed issues in: ${javaFile.name}"
+                }
+            }
+            
+            println "Completed fixing generated code issues."
+        }
+    }
+}
+
+// Create a master task to generate all APIs
+tasks.register('generateAllMnSApis') {
+    group = 'api-generation'
+    description = 'Generate all MnS API artifacts'
+    dependsOn apiGenerationTasks
+    finalizedBy fixGeneratedCode
+}
+
+// Ensure generated sources are available for compilation
+compileJava.dependsOn generateAllMnSApis
+processResources.dependsOn generateAllMnSApis
+sourcesJar.dependsOn generateAllMnSApis
+javadocJar.dependsOn generateAllMnSApis
+
+test {
+    useJUnitPlatform()
+}
+
+// Clean generated sources (they will be in build directory)
+clean {
+    delete "${buildDir}/generated-sources"
+}
+
+// Task to clean the cloned repository (useful for forcing a fresh clone)
+tasks.register('cleanMnSRepository') {
+    group = 'repository-setup'
+    description = 'Remove the cloned 3GPP MnS repository (will be re-cloned on next build)'
+    
+    doLast {
+        def apiSpecsDir = file("${projectDir}/api-specs")
+        if (apiSpecsDir.exists()) {
+            delete apiSpecsDir
+            println "Removed api-specs directory: ${apiSpecsDir.absolutePath}"
+        } else {
+            println "api-specs directory does not exist"
+        }
+    }
+}
+
+// Configure the jar task for library distribution
+jar {
+    enabled = true
+    archiveClassifier = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// Disable the bootJar task since this is a library
+bootJar {
+    enabled = false
+}

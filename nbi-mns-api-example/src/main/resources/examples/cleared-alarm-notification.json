@@ -1,0 +1,15 @@
+{
+  "href": "https://producer.example.com/alarms/alarm-001",
+  "notificationId": 12347,
+  "notificationType": "notifyClearedAlarm",
+  "eventTime": "2024-01-15T11:00:00Z",
+  "systemDN": "ManagedElement=NodeB001",
+  "alarmId": "alarm-001",
+  "alarmType": "EQUIPMENT_ALARM",
+  "probableCause": "POWER_SUPPLY_FAILURE",
+  "specificProblem": "Main power supply unit failure detected",
+  "alarmRaisedTime": "2024-01-15T10:30:00Z",
+  "alarmClearedTime": "2024-01-15T11:00:00Z",
+  "clearUserId": "technician-001",
+  "clearSystemId": "EMS-Central"
+}

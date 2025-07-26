@@ -1,0 +1,8 @@
+{
+  "consumerReference": "http://notification-service.example.com/all-notifications",
+  "filter": {
+    "objectClass": ["AlarmInformation"],
+    "notificationTypes": ["notifyNewAlarm", "notifyChangedAlarm", "notifyClearedAlarm"]
+  },
+  "timeTick": 30
+}

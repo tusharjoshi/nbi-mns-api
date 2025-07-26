@@ -1,0 +1,94 @@
+{
+  "getAlarmsResponse": {
+    "1": {
+      "objectInstance": "/ManagedElement=RAN001/Equipment=1",
+      "notificationId": "notif-001",
+      "alarmRaisedTime": "2024-01-15T10:30:00Z",
+      "alarmType": "communicationsAlarm",
+      "probableCause": "equipmentMalfunction",
+      "specificProblem": "Network interface eth0 is down",
+      "perceivedSeverity": "critical",
+      "backedUpStatus": false,
+      "trendIndication": "moreServere",
+      "additionalText": "Primary network interface has lost connectivity",
+      "additionalInformation": {
+        "interface": "eth0",
+        "lastPacketTime": "2024-01-15T10:29:45Z"
+      },
+      "ackState": "unacknowledged",
+      "comments": {}
+    },
+    "2": {
+      "objectInstance": "/ManagedElement=CORE002/ProcessingUnit=1",
+      "notificationId": "notif-002", 
+      "alarmRaisedTime": "2024-01-15T11:00:00Z",
+      "alarmType": "processingErrorAlarm",
+      "probableCause": "thresholdCrossed",
+      "specificProblem": "CPU usage exceeded 85% threshold",
+      "perceivedSeverity": "major",
+      "backedUpStatus": false,
+      "trendIndication": "moreServere",
+      "additionalText": "High CPU utilization detected on processing unit",
+      "additionalInformation": {
+        "currentUsage": "87%",
+        "threshold": "85%",
+        "duration": "5 minutes"
+      },
+      "ackState": "unacknowledged",
+      "comments": {}
+    }
+  },
+  "getAlarmCountResponse": {
+    "criticalCount": 1,
+    "majorCount": 1,
+    "minorCount": 2,
+    "warningCount": 3,
+    "indeterminateCount": 0,
+    "clearedCount": 5
+  },
+  "postCommentRequest": {
+    "commentTime": "2024-01-15T14:30:00Z",
+    "commentUserId": "admin",
+    "commentText": "Investigating network interface issue. Hardware team notified."
+  },
+  "postCommentResponse": {
+    "commentTime": "2024-01-15T14:30:00Z",
+    "commentUserId": "admin",
+    "commentText": "Investigating network interface issue. Hardware team notified.",
+    "commentSystemId": "EMS-001"
+  },
+  "patchAlarmRequest": {
+    "ackState": "acknowledged",
+    "ackUserId": "operator1",
+    "ackTime": "2024-01-15T14:45:00Z",
+    "additionalText": "Issue acknowledged and assigned to maintenance team"
+  },
+  "bulkPatchAlarmsRequest": {
+    "alarmAckState": "acknowledged",
+    "comment": {
+      "commentUserId": "supervisor",
+      "commentText": "All critical alarms reviewed and assigned"
+    }
+  },
+  "subscriptionRequest": {
+    "consumerReference": "http://notification-service.example.com/fault-notifications",
+    "filter": {
+      "objectClass": ["AlarmInformation"],
+      "objectInstance": ["/ManagedElement=RAN001", "/ManagedElement=CORE002"],
+      "notificationTypes": ["notifyNewAlarm", "notifyChangedAlarm", "notifyClearedAlarm"],
+      "perceivedSeverity": ["critical", "major"]
+    },
+    "timeTick": 60
+  },
+  "subscriptionResponse": {
+    "consumerReference": "http://notification-service.example.com/fault-notifications",
+    "filter": {
+      "objectClass": ["AlarmInformation"],
+      "objectInstance": ["/ManagedElement=RAN001", "/ManagedElement=CORE002"],
+      "notificationTypes": ["notifyNewAlarm", "notifyChangedAlarm", "notifyClearedAlarm"],
+      "perceivedSeverity": ["critical", "major"]
+    },
+    "timeTick": 60,
+    "subscriptionId": "sub-12345"
+  }
+}
