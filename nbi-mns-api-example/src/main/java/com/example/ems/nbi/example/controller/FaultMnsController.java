@@ -1,6 +1,6 @@
 package com.example.ems.nbi.example.controller;
 
-import com.example.ems.api.FaultApi;
+import com.example.ems.api.FaultMnSApi;
 import com.example.ems.model.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 @RestController
 @Tag(name = "Fault Management Service", description = "3GPP FaultMnS API implementation for alarm and subscription management")
-public class FaultMnsController implements FaultApi {
+public class FaultMnsController implements FaultMnSApi {
 
     // In-memory storage for demonstration purposes
     private final Map<String, AlarmsGet200ResponseValue> alarms = new ConcurrentHashMap<>();
